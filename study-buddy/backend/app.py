@@ -1,25 +1,23 @@
 from flask import Flask
-from flask_sqlalchemy import SQLAlchemy
+from flask_cors import CORS
 from flask_jwt_extended import JWTManager
-from config import Config
+from flask_migrate import Migrate  # Import Flask-Migrate
+from routes import api_blueprint
+from extensions import db  # Import from extensions
+import config
 
-db = SQLAlchemy()
-jwt = JWTManager()
+app = Flask(__name__)
+app.config.from_object(config.Config)
+db.init_app(app)
+jwt = JWTManager(app)
+CORS(app)
 
-def create_app():
-    app = Flask(__name__)
-    app.config.from_object(Config)
+# Set up Flask-Migrate
+migrate = Migrate(app, db)  # Initialize Flask-Migrate
 
-    db.init_app(app)
-    jwt.init_app(app)
-
-    with app.app_context():
-        from routes import api_bp
-        app.register_blueprint(api_bp)
-        db.create_all()  # Create database tables
-
-    return app
+app.register_blueprint(api_blueprint)
 
 if __name__ == '__main__':
-    app = create_app()
+    with app.app_context():
+        db.create_all()
     app.run(debug=True)

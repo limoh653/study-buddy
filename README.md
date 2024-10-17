@@ -1,59 +1,112 @@
-# study-buddy
+# Study Buddy
 
-## Description
-A full-stack web application to help students connect and collaborate through study groups.
+Study Buddy is a full-stack web application designed to help users find and join study groups easily. The application consists of a React frontend and a Flask backend, providing a smooth user experience and robust functionalities.
+
+## Table of Contents
+- [Features](#features)
+- [Tech Stack](#tech-stack)
+- [Getting Started](#getting-started)
+- [Backend Setup](#backend-setup)
+- [Frontend Setup](#frontend-setup)
+- [API Endpoints](#api-endpoints)
+- [Deployment](#deployment)
+- [License](#license)
+
+## Features
+- User authentication (sign up, login, password reset)
+- View and join study groups
+- User profiles with personal information
+- Protected routes for authenticated users
+
+## Tech Stack
+- **Frontend**: React, Redux, React Router, Bootstrap/TailwindCSS
+- **Backend**: Flask, Flask-CORS, Flask-SQLAlchemy, Flask-JWT-Extended
+- **Database**: SQLite (can be configured for PostgreSQL or other databases)
+- **Deployment**: Heroku (for backend), Vercel/Netlify (for frontend)
 
 ## Getting Started
 
 ### Prerequisites
 - Python 3.x
-- Node.js
-- npm or yarn
+- Node.js (14.x or higher)
+- npm (Node Package Manager)
 
 ### Backend Setup
-1. Navigate to the `backend` directory.
-2. Install the required packages:
+1. Clone the repository:
    ```bash
-   pip install -r requirements.txt
-Run the Flask application:
+   git clone https://github.com/yourusername/study-buddy.git
+   cd study-buddy/backend
+Create a virtual environment:
+
+bash
+Copy code
+python -m venv venv
+source venv/bin/activate  # On Windows use `venv\Scripts\activate`
+Install backend dependencies:
+
+bash
+Copy code
+pip install -r requirements.txt
+Set up environment variables: Create a .env file in the backend directory with the following content:
+
+makefile
+Copy code
+SECRET_KEY=your_secret_key
+DATABASE_URL=sqlite:///studybuddy.db  # or your database connection string
+JWT_SECRET_KEY=your_jwt_secret_key
+Initialize the database:
+
+bash
+Copy code
+flask db init
+flask db migrate -m "Initial migration"
+flask db upgrade
+Run the backend server:
+
 bash
 Copy code
 python app.py
 Frontend Setup
-Navigate to the frontend directory.
-Install the required packages:
+Navigate to the frontend directory:
+
+bash
+Copy code
+cd ../frontend
+Install frontend dependencies:
+
 bash
 Copy code
 npm install
-Run the React application:
+Set up environment variables: Create a .env file in the frontend directory with the following content:
+
+arduino
+Copy code
+REACT_APP_API_URL=http://localhost:5000
+Run the frontend application:
+
 bash
 Copy code
 npm start
 API Endpoints
-POST /api/register: Register a new user.
-POST /api/login: Log in a user and receive a JWT token.
-POST /api/groups: Create a new study group (requires JWT).
-GET /api/groups: Retrieve all study groups (requires JWT).
-POST /api/groups/int:group_id/messages: Send a message in a specific group (requires JWT).
-GET /api/groups/int:group_id/messages: Get all messages in a specific group (requires JWT).
-markdown
+POST /signup: Create a new user.
+POST /login: Log in an existing user.
+POST /reset-password: Reset user password.
+GET /profile: Get the logged-in user's profile information (protected route).
+Deployment
+Instructions for deploying the backend and frontend will be provided in detail. You can deploy the backend on Heroku and the frontend on Vercel/Netlify.
+
+License
+This project is licensed under the MIT License. See the LICENSE file for more information.
+
+vbnet
 Copy code
 
-### Testing the Application
+### Instructions for Customization
 
-1. **Set Up the Backend**:
-   - Ensure Flask is running without errors.
-   - Check that the database is created (you should see `database.db` in the `backend` folder).
+- **Replace Placeholder Text**: Make sure to replace any placeholder text like `your_secret_key`, `your_jwt_secret_key`, and the GitHub repository link with your actual values.
+- **Add Any Additional Features**: If you implement additional features, make sure to list them in the README.
+- **Add Screenshots**: Consider adding screenshots of the application to make it visually appealing.
 
-2. **Set Up the Frontend**:
-   - Ensure the React application runs without issues.
-   - Use tools like Postman or Insomnia to test your API endpoints.
+### Final Touch
 
-3. **Run the Application**:
-   - Register a user through the registration form.
-   - Log in to receive a JWT token.
-   - Create and view study groups.
-
-4. **Debugging**:
-   - Check console logs for errors.
-   - Ensure that all required dependencies are installed.
+Feel free to adjust the sections as necessary based on your project specifics. Once you have the README finalized, you can use it as a guide for others who may want to understand or contribute to your project. Let me know if you need any more help or changes!
