@@ -101,11 +101,7 @@ This project is licensed under the MIT License. See the LICENSE file for more in
 vbnet
 Copy code
 
-### Instructions for Customization
 
-- **Replace Placeholder Text**: Make sure to replace any placeholder text like `your_secret_key`, `your_jwt_secret_key`, and the GitHub repository link with your actual values.
-- **Add Any Additional Features**: If you implement additional features, make sure to list them in the README.
-- **Add Screenshots**: Consider adding screenshots of the application to make it visually appealing.
 
 ### Final Touch
 
