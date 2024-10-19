@@ -1,67 +1,43 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 
-const StudyGroup = ({ match }) => {
-    const [group, setGroup] = useState({});
-    const [messages, setMessages] = useState([]);
-    const [newMessage, setNewMessage] = useState('');
-
-    const groupId = match.params.id;
+const StudyGroup = () => {
+    const [groups, setGroups] = useState([]); // State to hold all study groups
+    const [error, setError] = useState(''); // State to store error messages
 
     useEffect(() => {
-        const fetchGroup = async () => {
-            const response = await axios.get(`/api/groups/${groupId}`, {
-                headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
-            });
-            setGroup(response.data);
+        const fetchGroups = async () => {
+            try {
+                const response = await axios.get('/api/study-group', {
+                    headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
+                });
+                setGroups(response.data.study_groups); // Access the study_groups from the response
+            } catch (error) {
+                console.error('Failed to fetch groups:', error);
+                setError('Failed to fetch study groups.');
+            }
         };
 
-        const fetchMessages = async () => {
-            const response = await axios.get(`/api/groups/${groupId}/messages`, {
-                headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
-            });
-            setMessages(response.data);
-        };
-
-        fetchGroup();
-        fetchMessages();
-    }, [groupId]);
-
-    const handleSendMessage = async (e) => {
-        e.preventDefault();
-        try {
-            await axios.post(`/api/groups/${groupId}/messages`, { content: newMessage }, {
-                headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
-            });
-            setNewMessage('');
-            // Re-fetch messages after sending
-            const response = await axios.get(`/api/groups/${groupId}/messages`, {
-                headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
-            });
-            setMessages(response.data);
-        } catch (error) {
-            console.error('Failed to send message:', error);
-        }
-    };
+        fetchGroups();
+    }, []);
 
     return (
         <div>
-            <h2>{group.name}</h2>
-            <h3>Messages</h3>
-            <ul>
-                {messages.map((msg) => (
-                    <li key={msg.id}>{msg.content}</li>
-                ))}
-            </ul>
-            <form onSubmit={handleSendMessage}>
-                <input
-                    type="text"
-                    placeholder="Type a message"
-                    value={newMessage}
-                    onChange={(e) => setNewMessage(e.target.value)}
-                />
-                <button type="submit">Send</button>
-            </form>
+            <h2>Your Study Groups</h2>
+            {error && <p style={{ color: 'red' }}>{error}</p>} {/* Display error message if any */}
+            {groups.length > 0 ? (
+                <ul>
+                    {groups.map((group) => (
+                        <li key={group.id}>
+                            <h3>{group.name}</h3>
+                            <p>{group.description}</p>
+                            {/* Add any other relevant group details you want to display */}
+                        </li>
+                    ))}
+                </ul>
+            ) : (
+                <p>No study groups found.</p> // Message if there are no groups
+            )}
         </div>
     );
 };

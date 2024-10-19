@@ -1,7 +1,9 @@
+
 from flask import Blueprint, request, jsonify
-from flask_jwt_extended import create_access_token, jwt_required
-from models import User, db
+from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity
+from models import User, db, StudyGroup
 from utils.auth import hash_password, verify_password
+from flask_login import login_required, current_user
 
 api_blueprint = Blueprint('api', __name__)
 
@@ -34,3 +36,39 @@ def reset_password():
         return jsonify(message="Password reset successfully"), 200
     return jsonify(message="User not found"), 404
 
+
+@api_blueprint.route('/study-group', methods=['GET'])
+def get_study_groups():
+    # Query all study groups from the database
+    study_groups = StudyGroup.query.all()
+
+    # Convert the list of StudyGroup objects to a JSON-friendly format
+    study_groups_data = [group.to_dict() for group in study_groups]
+
+    # Return the list of study groups as JSON
+    return jsonify(study_groups=study_groups_data), 200
+
+
+
+
+
+# The /profile endpoint that returns the current user's profile data
+@api_blueprint.route('/profile', methods=['GET'])
+@jwt_required()  # Require a valid JWT token to access this route
+def get_profile():
+    # Get the current user's identity from the JWT token
+    user_id = get_jwt_identity()
+
+    # Query the user from the database
+    user = User.query.get(user_id)
+
+    # If the user is found, return their profile information
+    if user:
+        return jsonify({
+            'username': user.username,
+            'email': user.email,
+            # Add any other fields you want to include
+        }), 200
+
+    # If no user is found (unlikely if JWT is valid), return a 404
+    return jsonify({'message': 'User not found'}), 404
