@@ -1,0 +1,159 @@
+/* StudyGroup.css */
+
+/* Main container for the entire page */
+div {
+    padding: 40px;
+    max-width: 1400px; /* Larger max-width for desktop displays */
+    margin: 0 auto; /* Center the content */
+    background-color: #f9f9f9; /* Light background color */
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  }
+  
+  /* Heading for the study groups section */
+  h2 {
+    text-align: center;
+    font-size: 3rem; /* Larger font size for desktop */
+    color: #333;
+    margin-bottom: 30px;
+  }
+  
+  /* Error message styling */
+  p[style="color: red;"] {
+    color: #d9534f; /* Bootstrap-like error red */
+    text-align: center;
+    font-size: 1.4rem;
+    margin-bottom: 20px;
+  }
+  
+  /* List styling */
+  ul {
+    list-style: none;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr); /* Display groups in 3 columns */
+    grid-gap: 30px; /* Add space between columns */
+  }
+  
+  /* Individual group item */
+  li {
+    background-color: #fff;
+    border-radius: 8px;
+    padding: 25px;
+    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    text-align: center;
+  }
+  
+  li:hover {
+    transform: translateY(-5px); /* Slight lift effect on hover */
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+  }
+  
+  /* Group name styling */
+  h3 {
+    font-size: 2rem; /* Larger size for group names */
+    color: #007bff; /* Blue color for group names */
+    margin-bottom: 15px;
+  }
+  
+  /* Button styling */
+  button {
+    padding: 12px 20px;
+    font-size: 1.1rem;
+    margin-right: 10px;
+    margin-bottom: 10px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+  
+  button:hover {
+    opacity: 0.9;
+  }
+  
+  /* Join button */
+  button:nth-child(2) {
+    background-color: #28a745; /* Green button for joining */
+    color: #fff;
+  }
+  
+  button:nth-child(2):hover {
+    background-color: #218838;
+  }
+  
+  /* Leave button */
+  button:nth-child(3) {
+    background-color: #dc3545; /* Red button for leaving */
+    color: #fff;
+  }
+  
+  button:nth-child(3):hover {
+    background-color: #c82333;
+  }
+  
+  /* Toggle members button */
+  button:nth-child(4) {
+    background-color: #6c757d; /* Gray button for toggling members */
+    color: #fff;
+  }
+  
+  button:nth-child(4):hover {
+    background-color: #5a6268;
+  }
+  
+  /* Members section styling */
+  div h4 {
+    font-size: 1.6rem;
+    color: #333;
+    margin-top: 25px;
+    margin-bottom: 15px;
+  }
+  
+  /* Members list styling */
+  div ul {
+    list-style: none;
+    padding: 0;
+  }
+  
+  div ul li {
+    font-size: 1.3rem;
+    color: #666; /* Gray color for member names */
+    margin-bottom: 10px;
+  }
+  
+  /* Responsive design adjustments */
+  @media (max-width: 1200px) {
+    ul {
+      grid-template-columns: repeat(2, 1fr); /* Two columns on medium screens */
+    }
+  }
+  
+  @media (max-width: 768px) {
+    ul {
+      grid-template-columns: 1fr; /* Single column on mobile screens */
+    }
+  
+    h2 {
+      font-size: 2.5rem;
+    }
+  
+    h3 {
+      font-size: 1.7rem;
+    }
+  
+    button {
+      font-size: 1rem;
+      padding: 10px 15px;
+    }
+  
+    div h4 {
+      font-size: 1.4rem;
+    }
+  
+    div ul li {
+      font-size: 1.1rem;
+    }
+  }
+  

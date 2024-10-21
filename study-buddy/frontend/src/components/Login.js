@@ -3,6 +3,7 @@ import { useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { loginSuccess } from '../store/userSlice';
 import { login } from '../services/api';
+import './Login.css'; // Import the CSS file
 
 function Login() {
   const [username, setUsername] = useState('');
@@ -31,23 +32,26 @@ function Login() {
   };
 
   return (
-    <form onSubmit={handleLogin}>
-      <input
-        type="text"
-        placeholder="Username"
-        value={username}
-        onChange={(e) => setUsername(e.target.value)}
-        required
-      />
-      <input
-        type="password"
-        placeholder="Password"
-        value={password}
-        onChange={(e) => setPassword(e.target.value)}
-        required
-      />
-      <button type="submit">Login</button>
-    </form>
+    <div className="login-container">
+      <form className="login-form" onSubmit={handleLogin}>
+        <h2>Login</h2>
+        <input
+          type="text"
+          placeholder="Username"
+          value={username}
+          onChange={(e) => setUsername(e.target.value)}
+          required
+        />
+        <input
+          type="password"
+          placeholder="Password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          required
+        />
+        <button type="submit">Login</button>
+      </form>
+    </div>
   );
 }
 

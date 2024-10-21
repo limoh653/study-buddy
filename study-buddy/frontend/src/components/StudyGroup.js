@@ -1,20 +1,38 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
+import './StudyGroup.css';
 
 const StudyGroup = () => {
     const [groups, setGroups] = useState([]);
     const [error, setError] = useState('');
+    const [loading, setLoading] = useState(true);
 
     useEffect(() => {
         const fetchGroups = async () => {
+            setLoading(true);
+            const token = localStorage.getItem('token');
+            if (!token) {
+                setError('You need to log in to access study groups.');
+                setLoading(false);
+                return;
+            }
+
             try {
                 const response = await axios.get('http://localhost:5000/study-group', {
-                    headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
+                    headers: { Authorization: `Bearer ${token}` }
                 });
-                setGroups(response.data.study_groups);
+                
+                // Add showMembers field to each group
+                const groupsWithShowMembers = response.data.study_groups.map(group => ({
+                    ...group,
+                    showMembers: false,
+                }));
+                setGroups(groupsWithShowMembers);
+                setError(''); // Clear any previous error
             } catch (error) {
-                console.error('Failed to fetch groups:', error);
-                setError('Failed to fetch study groups.');
+                handleError(error);
+            } finally {
+                setLoading(false);
             }
         };
 
@@ -22,37 +40,47 @@ const StudyGroup = () => {
     }, []);
 
     const joinGroup = async (groupId) => {
-        try {
-            const response = await axios.post('http://localhost:5000/study-group/join', 
-            { groupId }, 
-            {
-                headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
-            });
+        const token = localStorage.getItem('token');
+        if (!token) {
+            setError('You need to log in to join a group.');
+            return;
+        }
 
-            // Update the group with the new member after successfully joining
+        try {
+            const response = await axios.post('http://localhost:5000/study-group/join', { groupId }, {
+                headers: { Authorization: `Bearer ${token}` }
+            });
+            
+            // Update the members list after joining
             setGroups((prevGroups) =>
                 prevGroups.map((group) => {
                     if (group.id === groupId) {
-                        return { ...group, members: response.data.members };
+                        return { ...group, members: [...group.members, response.data.newMember] };
                     }
                     return group;
                 })
             );
+            setError('');
         } catch (error) {
-            console.error('Failed to join group:', error);
-            setError('Failed to join the study group.');
+            handleError(error);
         }
     };
 
     const leaveGroup = async (groupId) => {
+        const token = localStorage.getItem('token');
+        if (!token) {
+            setError('You need to log in to leave a group.');
+            return;
+        }
+
         try {
             const response = await axios.post('http://localhost:5000/study-group/leave', 
             { groupId }, 
             {
-                headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
+                headers: { Authorization: `Bearer ${token}` }
             });
-
-            // Update the group after successfully leaving
+    
+            // Update the members list after leaving
             setGroups((prevGroups) =>
                 prevGroups.map((group) => {
                     if (group.id === groupId) {
@@ -61,9 +89,9 @@ const StudyGroup = () => {
                     return group;
                 })
             );
+            setError('');
         } catch (error) {
-            console.error('Failed to leave group:', error);
-            setError('Failed to leave the study group.');
+            handleError(error);
         }
     };
 
@@ -77,6 +105,20 @@ const StudyGroup = () => {
             })
         );
     };
+
+    const handleError = (error) => {
+        if (error.response) {
+            console.error('Error:', error.response.data);
+            setError(error.response.data.message || 'An error occurred.');
+        } else {
+            console.error('Error:', error.message);
+            setError('An error occurred.');
+        }
+    };
+
+    if (loading) {
+        return <p>Loading...</p>;
+    }
 
     return (
         <div>
