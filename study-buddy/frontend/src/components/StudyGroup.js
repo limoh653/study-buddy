@@ -44,6 +44,29 @@ const StudyGroup = () => {
         }
     };
 
+    const leaveGroup = async (groupId) => {
+        try {
+            const response = await axios.post('http://localhost:5000/study-group/leave', 
+            { groupId }, 
+            {
+                headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
+            });
+
+            // Update the group after successfully leaving
+            setGroups((prevGroups) =>
+                prevGroups.map((group) => {
+                    if (group.id === groupId) {
+                        return { ...group, members: response.data.members };
+                    }
+                    return group;
+                })
+            );
+        } catch (error) {
+            console.error('Failed to leave group:', error);
+            setError('Failed to leave the study group.');
+        }
+    };
+
     const toggleMembers = (groupId) => {
         setGroups((prevGroups) =>
             prevGroups.map((group) => {
@@ -65,6 +88,7 @@ const StudyGroup = () => {
                         <li key={group.id}>
                             <h3>{group.name}</h3>
                             <button onClick={() => joinGroup(group.id)}>Join Group</button>
+                            <button onClick={() => leaveGroup(group.id)}>Leave Group</button>
                             <button onClick={() => toggleMembers(group.id)}>
                                 {group.showMembers ? 'Hide Members' : 'Show Members'}
                             </button>
