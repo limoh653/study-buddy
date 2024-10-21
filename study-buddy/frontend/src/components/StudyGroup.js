@@ -8,7 +8,7 @@ const StudyGroup = () => {
     useEffect(() => {
         const fetchGroups = async () => {
             try {
-                const response = await axios.get('/api/study-group', {
+                const response = await axios.get('http://localhost:5000/study-group', {
                     headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
                 });
                 setGroups(response.data.study_groups); // Access the study_groups from the response
@@ -30,7 +30,7 @@ const StudyGroup = () => {
                     {groups.map((group) => (
                         <li key={group.id}>
                             <h3>{group.name}</h3>
-                            <p>{group.description}</p>
+                            
                             {/* Add any other relevant group details you want to display */}
                         </li>
                     ))}

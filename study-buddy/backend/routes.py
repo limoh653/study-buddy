@@ -36,18 +36,12 @@ def reset_password():
         return jsonify(message="Password reset successfully"), 200
     return jsonify(message="User not found"), 404
 
-
 @api_blueprint.route('/study-group', methods=['GET'])
 def get_study_groups():
-    # Query all study groups from the database
     study_groups = StudyGroup.query.all()
-
-    # Convert the list of StudyGroup objects to a JSON-friendly format
-    study_groups_data = [group.to_dict() for group in study_groups]
-
-    # Return the list of study groups as JSON
-    return jsonify(study_groups=study_groups_data), 200
-
+    if not study_groups:
+        return jsonify({'message': 'No study groups found.'}), 404
+    return jsonify({'study_groups': [group.to_dict() for group in study_groups]}), 200
 
 
 
