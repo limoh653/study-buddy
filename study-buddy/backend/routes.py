@@ -1,11 +1,11 @@
-
 from flask import Blueprint, request, jsonify
 from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity
-from models import User, db, StudyGroup
+from models import User, db, StudyGroup, GroupMembership
 from utils.auth import hash_password, verify_password
-from flask_login import login_required, current_user
+from flask_cors import CORS  # Ensure you have this imported
 
 api_blueprint = Blueprint('api', __name__)
+CORS(api_blueprint, resources={r"/*": {"origins": "http://localhost:3000"}})  # Set up CORS
 
 @api_blueprint.route('/signup', methods=['POST'])
 def signup():
@@ -41,28 +41,58 @@ def get_study_groups():
     study_groups = StudyGroup.query.all()
     if not study_groups:
         return jsonify({'message': 'No study groups found.'}), 404
-    return jsonify({'study_groups': [group.to_dict() for group in study_groups]}), 200
+    
+    # Retrieve the study groups and their members from the database using the GroupMembership relationships
+    return jsonify({
+        'study_groups': [
+            {
+                'id': group.id,
+                'name': group.name,
+                'members': [{'id': member.user.id, 'username': member.user.username} for member in group.members]
+            }
+            for group in study_groups
+        ]
+    }), 200
 
 
+@api_blueprint.route('/study-group/join', methods=['POST'])
+@jwt_required()
+def join_study_group():
+    data = request.get_json()
+    group_id = data.get('groupId')
 
+    if not group_id:
+        return jsonify(message="Group ID is required"), 400
 
-# The /profile endpoint that returns the current user's profile data
-@api_blueprint.route('/profile', methods=['GET'])
-@jwt_required()  # Require a valid JWT token to access this route
-def get_profile():
-    # Get the current user's identity from the JWT token
+    study_group = StudyGroup.query.get(group_id)
+    if not study_group:
+        return jsonify(message="Study group not found"), 404
+
     user_id = get_jwt_identity()
-
-    # Query the user from the database
     user = User.query.get(user_id)
 
-    # If the user is found, return their profile information
+    # Check if the user is already a member of the group
+    if any(member.user_id == user.id for member in study_group.members):
+        return jsonify(message="You are already a member of this group"), 400
+
+    # Add the user to the study group
+    new_membership = GroupMembership(user_id=user.id, group_id=group_id)
+    db.session.add(new_membership)
+    db.session.commit()
+    
+    return jsonify(
+        message="Joined group successfully", 
+        members=[{'id': member.user.id, 'username': member.user.username} for member in study_group.members]
+    ), 200
+
+@api_blueprint.route('/profile', methods=['GET'])
+@jwt_required()
+def get_profile():
+    user_id = get_jwt_identity()
+    user = User.query.get(user_id)
     if user:
         return jsonify({
             'username': user.username,
             'email': user.email,
-            # Add any other fields you want to include
         }), 200
-
-    # If no user is found (unlikely if JWT is valid), return a 404
     return jsonify({'message': 'User not found'}), 404
