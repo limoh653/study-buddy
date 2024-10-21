@@ -34,7 +34,7 @@ Study Buddy is a full-stack web application designed to help users find and join
 ### Backend Setup
 1. Clone the repository:
    ```bash
-   git clone https://github.com/yourusername/study-buddy.git
+   git clone git@github.com:Thazar-r/study-buddy.git
    cd study-buddy/backend
 Create a virtual environment:
 
