@@ -1,87 +1,50 @@
 /* Home.css */
 
-/* Styling for the container */
+body {
+  font-family: 'Arial', sans-serif;
+  background-color: #f4f4f9;
+  margin: 0;
+  padding: 0;
+}
+
+h1 {
+  font-size: 36px;
+  color: #2c3e50;
+  text-align: center;
+  margin-top: 50px;
+}
+
+p {
+  font-size: 18px;
+  color: #34495e;
+  text-align: center;
+  margin: 20px 0;
+}
+
 div {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    height: 100vh; /* Full height of the viewport */
-    background-color: #f0f4f8; /* Light background color */
-    text-align: center;
-    padding: 20px;
-    box-sizing: border-box;
-  }
-  
-  /* Heading (h1) styling */
-  h1 {
-    font-size: 3rem;
-    color: #333; /* Dark text color */
-    margin-bottom: 20px;
-    font-weight: 700;
-  }
-  
-  /* Paragraph (p) styling */
-  p {
-    font-size: 1.5rem;
-    color: #666; /* Gray text color */
-    margin-bottom: 40px;
-    max-width: 600px; /* Limit the width of the text */
-    line-height: 1.6; /* Improve readability */
-  }
-  
-  /* Link styling */
-  a {
-    font-size: 1.3rem;
-    color: #007bff; /* Blue link color */
-    text-decoration: none;
-    margin: 0 20px;
-    transition: color 0.3s ease;
-    padding: 10px 20px;
-    border: 2px solid #007bff;
-    border-radius: 5px;
-  }
-  
-  a:hover {
-    color: #0056b3; /* Darker blue on hover */
-    border-color: #0056b3;
-  }
-  
-  /* Responsive design for mobile devices */
-  @media (max-width: 768px) {
-    h1 {
-      font-size: 2rem;
-    }
-  
-    p {
-      font-size: 1.2rem;
-      margin-bottom: 30px;
-    }
-  
-    a {
-      font-size: 1.1rem;
-      margin: 0 10px;
-    }
-  }
-  
-  /* Desktop-specific styles */
-  @media (min-width: 1024px) {
-    div {
-      padding: 40px;
-    }
-  
-    h1 {
-      font-size: 3.5rem;
-    }
-  
-    p {
-      font-size: 1.8rem;
-      max-width: 800px;
-    }
-  
-    a {
-      font-size: 1.4rem;
-      padding: 12px 30px;
-    }
-  }
-  
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  background-color: #e0e7ff;
+}
+
+a {
+  text-decoration: none;
+  color: white;
+  background-color: #5c6bc0;
+  padding: 10px 20px;
+  border-radius: 5px;
+  margin: 10px;
+  font-size: 16px;
+  transition: background-color 0.3s ease;
+}
+
+a:hover {
+  background-color: #3f51b5;
+}
+
+a:active {
+  background-color: #283593;
+}
