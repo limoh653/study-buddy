@@ -5,7 +5,7 @@ from utils.auth import hash_password, verify_password
 from flask_cors import CORS  # Ensure you have this imported
 
 api_blueprint = Blueprint('api', __name__)
-CORS(api_blueprint, resources={r"/*": {"origins": "http://localhost:3000"}})  # Set up CORS
+CORS(api_blueprint, resources={r"/*": {"origins": "https://study-buddy-1.onrender.com"}})  # Set up CORS
 
 @api_blueprint.route('/signup', methods=['POST'])
 def signup():
