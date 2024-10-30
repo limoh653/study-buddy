@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_URL = process.env.REACT_APP_API_URL || 'https://study-buddy-1.onrender.com';
+const API_URL = process.env.REACT_APP_API_URL
 
 export const signup = async (data) => {
   return await axios.post(`${API_URL}/signup`, data);
