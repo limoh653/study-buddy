@@ -5,7 +5,11 @@ from utils.auth import hash_password, verify_password
 from flask_cors import CORS  # Ensure you have this imported
 
 api_blueprint = Blueprint('api', __name__)
-CORS(api_blueprint, resources={r"/*": {"origins": "https://study-buddy-1.onrender.com"}})  # Set up CORS
+CORS(
+    api_blueprint,
+    resources={r"/*": {"origins": ["http://localhost:3000"]}},
+    supports_credentials=True
+)
 
 @api_blueprint.route('/signup', methods=['POST'])
 def signup():
@@ -21,8 +25,15 @@ def login():
     data = request.get_json()
     user = User.query.filter_by(username=data['username']).first()
     if user and verify_password(data['password'], user.password):
-        access_token = create_access_token(identity=user.id)
-        return jsonify(access_token=access_token), 200
+        access_token = create_access_token(identity=str(user.id))
+        return jsonify({
+            'access_token': access_token,
+            'user': {
+                'id': user.id,
+                'username': user.username,
+                'email': user.email
+            }
+        }), 200
     return jsonify(message="Invalid credentials"), 401
 
 @api_blueprint.route('/reset-password', methods=['POST'])
@@ -88,7 +99,7 @@ def join_study_group():
 @api_blueprint.route('/profile', methods=['GET'])
 @jwt_required()
 def get_profile():
-    user_id = get_jwt_identity()
+    user_id = int(get_jwt_identity())  # Convert back to int
     user = User.query.get(user_id)
     if user:
         return jsonify({
@@ -96,3 +107,28 @@ def get_profile():
             'email': user.email,
         }), 200
     return jsonify({'message': 'User not found'}), 404
+
+@api_blueprint.route('/study-group/leave', methods=['POST'])
+@jwt_required()
+def leave_study_group():
+    data = request.get_json()
+    group_id = data.get('groupId')
+
+    if not group_id:
+        return jsonify(message="Group ID is required"), 400
+
+    user_id = get_jwt_identity()
+    membership = GroupMembership.query.filter_by(user_id=user_id, group_id=group_id).first()
+
+    if not membership:
+        return jsonify(message="You are not a member of this group"), 400
+
+    # Remove the membership
+    db.session.delete(membership)
+    db.session.commit()
+
+    # Optionally, return the updated list of members
+    study_group = StudyGroup.query.get(group_id)
+    members = [{'id': member.user.id, 'username': member.user.username} for member in study_group.members]
+
+    return jsonify(message="Left group successfully", members=members), 200

@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getProfile } from '../services/api';
 import { useSelector } from 'react-redux';
-import './Dashboard.css'; // Import your CSS styles
+import './Dashboard.css';
 
 function Dashboard() {
   const [userInfo, setUserInfo] = useState(null);
@@ -26,15 +26,31 @@ function Dashboard() {
   const fetchUserProfile = async () => {
     try {
       const token = localStorage.getItem('token');
+
+      // ✅ Log token to verify it exists
+      console.log("🔑 Token from localStorage:", token);
+
+      if (!token) {
+        console.error("⚠️ No token found. Redirecting to login...");
+        navigate('/login'); // ✅ force login if no token
+        return;
+      }
+
       const response = await getProfile(token);
+
+      // ✅ Log response data
+      console.log("✅ Profile API response:", response.data);
+
       setUserInfo(response.data);
     } catch (error) {
-      console.error('Error fetching user profile:', error);
+      console.error(
+        '❌ Error fetching user profile:',
+        error.response?.data || error.message
+      );
     }
   };
 
-  const fetchRecentActivities = async () => {
-    // Mock fetching recent activities
+  const fetchRecentActivities = () => {
     setRecentActivities([
       'Joined the React Study Group',
       'Completed the JavaScript Challenge',
@@ -42,8 +58,7 @@ function Dashboard() {
     ]);
   };
 
-  const fetchNotifications = async () => {
-    // Mock fetching notifications
+  const fetchNotifications = () => {
     setNotifications([
       'New comments on your post',
       'You have a new message from Alex',
@@ -51,8 +66,7 @@ function Dashboard() {
     ]);
   };
 
-  const fetchStatistics = async () => {
-    // Mock fetching user statistics
+  const fetchStatistics = () => {
     setStatistics({ studyGroups: 5, completedTasks: 12 });
   };
 

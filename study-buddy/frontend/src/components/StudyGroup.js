@@ -18,7 +18,7 @@ const StudyGroup = () => {
             }
 
             try {
-                const response = await axios.get('http://localhost:5000/study-group', {
+                const response = await axios.get('http://localhost:5001/study-group', {
                     headers: { Authorization: `Bearer ${token}` }
                 });
                 
@@ -47,7 +47,7 @@ const StudyGroup = () => {
         }
 
         try {
-            const response = await axios.post('http://localhost:5000/study-group/join', { groupId }, {
+            const response = await axios.post('http://localhost:5001/study-group/join', { groupId }, {
                 headers: { Authorization: `Bearer ${token}` }
             });
             
@@ -74,7 +74,7 @@ const StudyGroup = () => {
         }
 
         try {
-            const response = await axios.post('http://localhost:5000/study-group/leave', 
+            const response = await axios.post('http://localhost:5001/study-group/leave', 
             { groupId }, 
             {
                 headers: { Authorization: `Bearer ${token}` }
