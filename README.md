@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # Study Buddy
 
 Study Buddy is a full-stack web application designed to help users find and join study groups easily. The application consists of a React frontend and a Flask backend, providing a smooth user experience and robust functionalities.
@@ -103,3 +104,6 @@ Copy code
 
 
 
+=======
+# study-buddy
+>>>>>>> ad73ba8d601b8985c3742b7b22fa13248f0499cb
