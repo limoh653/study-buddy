@@ -19,13 +19,13 @@ app.config.from_object(config.Config)
 
 # ------------------ UPDATED ------------------
 # Initialize CORS for both local dev and production frontend
+
 CORS(
     app,
     resources={r"/*": {"origins": ["http://localhost:3000", "https://study-buddy001.onrender.com"]}},
-    supports_credentials=True
+    supports_credentials=True,
+    methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],  # <-- allow all methods
 )
-# ---------------------------------------------
-
 # Initialize the database and JWT manager
 db.init_app(app)
 jwt = JWTManager(app)
