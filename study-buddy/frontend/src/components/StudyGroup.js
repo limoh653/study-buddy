@@ -8,7 +8,6 @@ const StudyGroup = () => {
 
   const token = localStorage.getItem("token");
 
-  // Fetch both lists on mount
   useEffect(() => {
     const fetchGroups = async () => {
       try {
@@ -29,7 +28,6 @@ const StudyGroup = () => {
     if (token) fetchGroups();
   }, [token]);
 
-  // Handle join
   const handleJoin = async (groupId) => {
     try {
       await joinGroup(token, groupId);
@@ -40,7 +38,6 @@ const StudyGroup = () => {
     }
   };
 
-  // Handle leave
   const handleLeave = async (groupId) => {
     try {
       await leaveGroup(token, groupId);
@@ -51,43 +48,74 @@ const StudyGroup = () => {
     }
   };
 
-  if (loading) return <p>⏳ Loading groups...</p>;
+  if (loading) return <p className="text-center py-6">⏳ Loading groups...</p>;
+
+  // Filter other groups
+  const otherGroups = allGroups.filter(
+    (group) => !joinedGroups.some((jg) => jg.id === group.id)
+  );
 
   return (
-    <div className="study-groups">
+    <div className="max-w-4xl mx-auto p-6 space-y-10">
       {/* My Groups */}
-      <h2>My Groups</h2>
-      {joinedGroups.length === 0 ? (
-        <p>You are not a member of any group</p>
-      ) : (
-        <ul>
-          {joinedGroups.map((group) => (
-            <li key={group.id}>
-              <strong>{group.name}</strong> ({group.members.length} members)
-              <button onClick={() => handleLeave(group.id)}>🚪 Leave</button>
-            </li>
-          ))}
-        </ul>
-      )}
+      <section>
+        <h2 className="text-2xl font-bold mb-4 text-gray-800">📚 My Groups</h2>
+        {joinedGroups.length === 0 ? (
+          <p className="text-gray-500">You are not a member of any group</p>
+        ) : (
+          <div className="grid md:grid-cols-2 gap-4">
+            {joinedGroups.map((group) => (
+              <div
+                key={group.id}
+                className="p-4 border rounded-xl shadow-sm flex flex-col justify-between bg-white"
+              >
+                <div>
+                  <h3 className="font-semibold text-lg">{group.name}</h3>
+                  <p className="text-sm text-gray-500">
+                    👥 {group.members.length} members
+                  </p>
+                </div>
+                <button
+                  onClick={() => handleLeave(group.id)}
+                  className="mt-3 bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded-lg text-sm transition"
+                >
+                  🚪 Leave
+                </button>
+              </div>
+            ))}
+          </div>
+        )}
+      </section>
 
-      {/* All Groups */}
-      <h2>All Groups</h2>
-      {allGroups.length === 0 ? (
-        <p>No study groups available</p>
-      ) : (
-        <ul>
-          {allGroups.map((group) => (
-            <li key={group.id}>
-              <strong>{group.name}</strong> ({group.members.length} members)
-              {joinedGroups.some((jg) => jg.id === group.id) ? (
-                <button disabled>✅ Joined</button>
-              ) : (
-                <button onClick={() => handleJoin(group.id)}>➕ Join</button>
-              )}
-            </li>
-          ))}
-        </ul>
-      )}
+      {/* Other Groups */}
+      <section>
+        <h2 className="text-2xl font-bold mb-4 text-gray-800">🌍 Other Groups</h2>
+        {otherGroups.length === 0 ? (
+          <p className="text-gray-500">No other study groups available</p>
+        ) : (
+          <div className="grid md:grid-cols-2 gap-4">
+            {otherGroups.map((group) => (
+              <div
+                key={group.id}
+                className="p-4 border rounded-xl shadow-sm flex flex-col justify-between bg-white"
+              >
+                <div>
+                  <h3 className="font-semibold text-lg">{group.name}</h3>
+                  <p className="text-sm text-gray-500">
+                    👥 {group.members.length} members
+                  </p>
+                </div>
+                <button
+                  onClick={() => handleJoin(group.id)}
+                  className="mt-3 bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded-lg text-sm transition"
+                >
+                  ➕ Join
+                </button>
+              </div>
+            ))}
+          </div>
+        )}
+      </section>
     </div>
   );
 };
