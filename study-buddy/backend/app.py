@@ -18,7 +18,7 @@ app = Flask(__name__)
 app.config.from_object(config.Config)
 
 # Initialize CORS for all routes and allow React frontend
-CORS(app, resources={r"/*": {"origins": "http://localhost:3000"}}, supports_credentials=True)
+CORS(app, resources={r"/*": {"origins": "https://study-buddy001.onrender.com"}}, supports_credentials=True)
 
 # Initialize the database and JWT manager
 db.init_app(app)
