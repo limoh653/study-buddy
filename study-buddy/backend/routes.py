@@ -25,7 +25,7 @@ def login():
     data = request.get_json()
     user = User.query.filter_by(username=data['username']).first()
     if user and verify_password(data['password'], user.password):
-        access_token = create_access_token(identity=str(user.id))
+        access_token = create_access_token(identity=str(user.id))  # identity stored as string
         return jsonify({
             'access_token': access_token,
             'user': {
@@ -53,7 +53,6 @@ def get_study_groups():
     if not study_groups:
         return jsonify({'message': 'No study groups found.'}), 404
     
-    # Retrieve the study groups and their members from the database using the GroupMembership relationships
     return jsonify({
         'study_groups': [
             {
@@ -64,7 +63,6 @@ def get_study_groups():
             for group in study_groups
         ]
     }), 200
-
 
 @api_blueprint.route('/study-group/join', methods=['POST'])
 @jwt_required()
@@ -79,14 +77,12 @@ def join_study_group():
     if not study_group:
         return jsonify(message="Study group not found"), 404
 
-    user_id = get_jwt_identity()
+    user_id = int(get_jwt_identity())  # convert back to int
     user = User.query.get(user_id)
 
-    # Check if the user is already a member of the group
     if any(member.user_id == user.id for member in study_group.members):
         return jsonify(message="You are already a member of this group"), 400
 
-    # Add the user to the study group
     new_membership = GroupMembership(user_id=user.id, group_id=group_id)
     db.session.add(new_membership)
     db.session.commit()
@@ -117,17 +113,15 @@ def leave_study_group():
     if not group_id:
         return jsonify(message="Group ID is required"), 400
 
-    user_id = get_jwt_identity()
+    user_id = int(get_jwt_identity())  # convert back to int
     membership = GroupMembership.query.filter_by(user_id=user_id, group_id=group_id).first()
 
     if not membership:
         return jsonify(message="You are not a member of this group"), 400
 
-    # Remove the membership
     db.session.delete(membership)
     db.session.commit()
 
-    # Optionally, return the updated list of members
     study_group = StudyGroup.query.get(group_id)
     members = [{'id': member.user.id, 'username': member.user.username} for member in study_group.members]
 
