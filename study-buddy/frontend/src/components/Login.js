@@ -3,7 +3,7 @@ import { useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { loginSuccess } from '../store/userSlice';
 import { login } from '../services/api';
-import './Login.css';
+import './Login.css'; // Import the CSS file
 
 function Login() {
   const [username, setUsername] = useState('');
@@ -15,24 +15,19 @@ function Login() {
     e.preventDefault();
     try {
       const response = await login({ username, password });
-
-      // Adjust depending on backend response shape
       const token = response.data.access_token;
-      const user = response.data.user; // <-- Make sure your backend sends this
 
-      // Save to local storage (important for reloads)
+      // Save token to local storage
       localStorage.setItem('token', token);
-      localStorage.setItem('userId', user.id);
-      localStorage.setItem('username', user.username);
 
-      // Update Redux store
-      dispatch(loginSuccess({ id: user.id, username: user.username }));
+      // Dispatch login action to update Redux store
+      dispatch(loginSuccess({ username }));
 
-      // Redirect after login
+      // Redirect to the dashboard
       navigate('/dashboard');
     } catch (error) {
-      console.error('Login failed:', error.response?.data || error.message);
-      alert(error.response?.data?.message || 'Login failed. Please check your credentials.');
+      console.error('Login failed:', error);
+      alert('Login failed. Please check your credentials.');
     }
   };
 
