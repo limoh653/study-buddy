@@ -150,3 +150,5 @@ def get_my_groups():
     ]
 
     return jsonify({'joined_groups': groups}), 200
+
+  

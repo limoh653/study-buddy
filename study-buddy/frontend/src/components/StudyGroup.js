@@ -1,72 +1,90 @@
 import React, { useEffect, useState } from "react";
-import {
-  fetchGroups,
-  joinGroup,
-  fetchJoinedGroups,
-} from "../api"; // ✅ using the updated api.js
+import { getJoinedGroups, joinGroup, leaveGroup, getAllGroups } from "../api";
 
 const StudyGroup = () => {
-  const [groups, setGroups] = useState([]);
-  const [myGroups, setMyGroups] = useState([]);
+  const [allGroups, setAllGroups] = useState([]);
+  const [joinedGroups, setJoinedGroups] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  // fetch all groups + my groups on mount
+  const token = localStorage.getItem("token");
+
+  // Fetch both lists on mount
   useEffect(() => {
-    const loadGroups = async () => {
+    const fetchGroups = async () => {
       try {
         const [allRes, joinedRes] = await Promise.all([
-          fetchGroups(),
-          fetchJoinedGroups(),
+          getAllGroups(),
+          getJoinedGroups(token),
         ]);
-        setGroups(allRes.data.study_groups || []);
-        setMyGroups(joinedRes.data.joined_groups || []);
+
+        setAllGroups(allRes.data.study_groups || []);
+        setJoinedGroups(joinedRes.data.joined_groups || []);
       } catch (error) {
-        console.error("❌ Error loading groups:", error.response?.data || error.message);
+        console.error("❌ Error fetching groups:", error.response?.data || error.message);
       } finally {
         setLoading(false);
       }
     };
-    loadGroups();
-  }, []);
 
+    if (token) fetchGroups();
+  }, [token]);
+
+  // Handle join
   const handleJoin = async (groupId) => {
     try {
-      await joinGroup(groupId);
-      // refresh groups after joining
-      const joinedRes = await fetchJoinedGroups();
-      setMyGroups(joinedRes.data.joined_groups || []);
+      await joinGroup(token, groupId);
+      // Refresh joined groups after joining
+      const res = await getJoinedGroups(token);
+      setJoinedGroups(res.data.joined_groups || []);
     } catch (error) {
       console.error("❌ Error joining group:", error.response?.data || error.message);
     }
   };
 
-  if (loading) return <p>⏳ Loading study groups...</p>;
+  // Handle leave
+  const handleLeave = async (groupId) => {
+    try {
+      await leaveGroup(token, groupId);
+      // Refresh joined groups after leaving
+      const res = await getJoinedGroups(token);
+      setJoinedGroups(res.data.joined_groups || []);
+    } catch (error) {
+      console.error("❌ Error leaving group:", error.response?.data || error.message);
+    }
+  };
+
+  if (loading) return <p>⏳ Loading groups...</p>;
 
   return (
     <div className="study-groups">
-      <h2>📚 All Study Groups</h2>
-      {groups.length === 0 ? (
-        <p>No groups available.</p>
+      <h2>My Groups</h2>
+      {joinedGroups.length === 0 ? (
+        <p>You are not a member of any group</p>
       ) : (
         <ul>
-          {groups.map((group) => (
+          {joinedGroups.map((group) => (
             <li key={group.id}>
-              {group.name}{" "}
-              {!myGroups.find((g) => g.id === group.id) && (
-                <button onClick={() => handleJoin(group.id)}>Join</button>
-              )}
+              <strong>{group.name}</strong> ({group.members.length} members)
+              <button onClick={() => handleLeave(group.id)}>Leave</button>
             </li>
           ))}
         </ul>
       )}
 
-      <h2>✅ My Groups</h2>
-      {myGroups.length === 0 ? (
-        <p>You haven’t joined any groups yet.</p>
+      <h2>All Groups</h2>
+      {allGroups.length === 0 ? (
+        <p>No study groups available</p>
       ) : (
         <ul>
-          {myGroups.map((group) => (
-            <li key={group.id}>{group.name}</li>
+          {allGroups.map((group) => (
+            <li key={group.id}>
+              <strong>{group.name}</strong> ({group.members.length} members)
+              {joinedGroups.some((jg) => jg.id === group.id) ? (
+                <button disabled>Joined</button>
+              ) : (
+                <button onClick={() => handleJoin(group.id)}>Join</button>
+              )}
+            </li>
           ))}
         </ul>
       )}
