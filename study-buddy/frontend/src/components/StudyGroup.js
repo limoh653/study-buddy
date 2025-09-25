@@ -5,6 +5,7 @@ import './StudyGroup.css';
 const StudyGroup = () => {
     const [groups, setGroups] = useState([]);
     const [error, setError] = useState('');
+    const [message, setMessage] = useState(''); // New notification state
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
@@ -21,14 +22,14 @@ const StudyGroup = () => {
                 const response = await axios.get('http://localhost:5001/study-group', {
                     headers: { Authorization: `Bearer ${token}` }
                 });
-                
-                // Add showMembers field to each group
-                const groupsWithShowMembers = response.data.study_groups.map(group => ({
+
+                const groupsWithMembers = response.data.study_groups.map(group => ({
                     ...group,
+                    members: group.members || [],
                     showMembers: false,
                 }));
-                setGroups(groupsWithShowMembers);
-                setError(''); // Clear any previous error
+                setGroups(groupsWithMembers);
+                setError('');
             } catch (error) {
                 handleError(error);
             } finally {
@@ -47,19 +48,19 @@ const StudyGroup = () => {
         }
 
         try {
-            const response = await axios.post('http://localhost:5001/study-group/join', { groupId }, {
-                headers: { Authorization: `Bearer ${token}` }
-            });
-            
-            // Update the members list after joining
-            setGroups((prevGroups) =>
-                prevGroups.map((group) => {
-                    if (group.id === groupId) {
-                        return { ...group, members: [...group.members, response.data.newMember] };
-                    }
-                    return group;
-                })
+            const response = await axios.post(
+                'http://localhost:5001/study-group/join',
+                { groupId },
+                { headers: { Authorization: `Bearer ${token}` } }
             );
+
+            setGroups(prevGroups =>
+                prevGroups.map(group =>
+                    group.id === groupId ? { ...group, members: response.data.members } : group
+                )
+            );
+
+            setMessage('You have successfully joined the group.');
             setError('');
         } catch (error) {
             handleError(error);
@@ -74,21 +75,19 @@ const StudyGroup = () => {
         }
 
         try {
-            const response = await axios.post('http://localhost:5001/study-group/leave', 
-            { groupId }, 
-            {
-                headers: { Authorization: `Bearer ${token}` }
-            });
-    
-            // Update the members list after leaving
-            setGroups((prevGroups) =>
-                prevGroups.map((group) => {
-                    if (group.id === groupId) {
-                        return { ...group, members: response.data.members };
-                    }
-                    return group;
-                })
+            const response = await axios.post(
+                'http://localhost:5001/study-group/leave',
+                { groupId },
+                { headers: { Authorization: `Bearer ${token}` } }
             );
+
+            setGroups(prevGroups =>
+                prevGroups.map(group =>
+                    group.id === groupId ? { ...group, members: response.data.members } : group
+                )
+            );
+
+            setMessage('You have successfully left the group.');
             setError('');
         } catch (error) {
             handleError(error);
@@ -96,13 +95,10 @@ const StudyGroup = () => {
     };
 
     const toggleMembers = (groupId) => {
-        setGroups((prevGroups) =>
-            prevGroups.map((group) => {
-                if (group.id === groupId) {
-                    return { ...group, showMembers: !group.showMembers };
-                }
-                return group;
-            })
+        setGroups(prevGroups =>
+            prevGroups.map(group =>
+                group.id === groupId ? { ...group, showMembers: !group.showMembers } : group
+            )
         );
     };
 
@@ -114,6 +110,7 @@ const StudyGroup = () => {
             console.error('Error:', error.message);
             setError('An error occurred.');
         }
+        setMessage('');
     };
 
     if (loading) {
@@ -124,6 +121,7 @@ const StudyGroup = () => {
         <div>
             <h2>Your Study Groups</h2>
             {error && <p style={{ color: 'red' }}>{error}</p>}
+            {message && <p style={{ color: 'green' }}>{message}</p>}
             {groups.length > 0 ? (
                 <ul>
                     {groups.map((group) => (
@@ -134,7 +132,7 @@ const StudyGroup = () => {
                             <button onClick={() => toggleMembers(group.id)}>
                                 {group.showMembers ? 'Hide Members' : 'Show Members'}
                             </button>
-                            {group.showMembers && group.members && group.members.length > 0 && (
+                            {group.showMembers && group.members.length > 0 && (
                                 <div>
                                     <h4>Members:</h4>
                                     <ul>

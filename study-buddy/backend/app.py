@@ -17,8 +17,8 @@ app = Flask(__name__)
 # Load configuration from config.py
 app.config.from_object(config.Config)
 
-# Initialize CORS for the application
-CORS(app)
+# Initialize CORS for all routes and allow React frontend
+CORS(app, resources={r"/*": {"origins": "http://localhost:3000"}}, supports_credentials=True)
 
 # Initialize the database and JWT manager
 db.init_app(app)
@@ -27,11 +27,15 @@ jwt = JWTManager(app)
 # Set up Flask-Migrate
 migrate = Migrate(app, db)
 
-# Register API blueprint
-app.register_blueprint(api_blueprint)
+# Register API blueprint with optional prefix (here no prefix)
+app.register_blueprint(api_blueprint, url_prefix="")  # Keep empty so routes match /study-group etc.
 
-# Create all database tables and start the application
+# Optional: Print all registered routes to debug 404s
+with app.app_context():
+    for rule in app.url_map.iter_rules():
+        print(f"Route: {rule} -> {rule.endpoint}")
+    db.create_all()  # Ensure tables exist
+
+# Run the Flask app
 if __name__ == '__main__':
-    with app.app_context():
-        db.create_all()  # This creates tables if they don't exist
-    app.run(debug=False, port=5001, host='0.0.0.0')
+    app.run(debug=True, port=5001, host='0.0.0.0')
