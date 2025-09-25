@@ -126,3 +126,27 @@ def leave_study_group():
     members = [{'id': member.user.id, 'username': member.user.username} for member in study_group.members]
 
     return jsonify(message="Left group successfully", members=members), 200
+
+# ✅ NEW ENDPOINT: Get groups joined by the logged-in user
+@api_blueprint.route('/my-groups', methods=['GET'])
+@jwt_required()
+def get_my_groups():
+    user_id = int(get_jwt_identity())
+    memberships = GroupMembership.query.filter_by(user_id=user_id).all()
+
+    if not memberships:
+        return jsonify({'joined_groups': []}), 200
+
+    groups = [
+        {
+            'id': membership.group.id,
+            'name': membership.group.name,
+            'members': [
+                {'id': m.user.id, 'username': m.user.username}
+                for m in membership.group.members
+            ]
+        }
+        for membership in memberships
+    ]
+
+    return jsonify({'joined_groups': groups}), 200

@@ -1,190 +1,66 @@
-import React, { useEffect, useState } from 'react';
-import axios from 'axios';
-import './StudyGroup.css';
-
-const BASE_URL = "https://study-buddy-24.onrender.com"; // Correct backend URL
+import React, { useEffect, useState } from "react";
+import api from "../api";
 
 const StudyGroup = () => {
-    const [groups, setGroups] = useState([]);
-    const [error, setError] = useState('');
-    const [message, setMessage] = useState('');
-    const [loading, setLoading] = useState(true);
+  const [allGroups, setAllGroups] = useState([]);
+  const [myGroups, setMyGroups] = useState([]);
 
-    useEffect(() => {
-        const fetchGroups = async () => {
-            setLoading(true);
-            const token = localStorage.getItem('token');
-            if (!token) {
-                setError('You need to log in to access study groups.');
-                setLoading(false);
-                return;
-            }
-
-            try {
-                const response = await axios.get(`${BASE_URL}/study-group`, {
-                    headers: { Authorization: `Bearer ${token}` }
-                });
-
-                const groupsWithMembers = response.data.study_groups.map(group => ({
-                    ...group,
-                    members: group.members || [],
-                    showMembers: false,
-                }));
-
-                setGroups(groupsWithMembers);
-                setError('');
-            } catch (err) {
-                handleError(err);
-            } finally {
-                setLoading(false);
-            }
-        };
-
-        fetchGroups();
-    }, []);
-
-    const joinGroup = async (groupId) => {
-        const token = localStorage.getItem('token');
-        if (!token) {
-            setError('You need to log in to join a group.');
-            return;
-        }
-
-        try {
-            const response = await axios.post(
-                `${BASE_URL}/study-group/join`,
-                { groupId },
-                { headers: { Authorization: `Bearer ${token}` } }
-            );
-
-            setGroups(prevGroups =>
-                prevGroups.map(group =>
-                    group.id === groupId ? { ...group, members: response.data.members } : group
-                )
-            );
-
-            setMessage('You have successfully joined the group.');
-            setError('');
-        } catch (err) {
-            handleError(err);
-        }
+  useEffect(() => {
+    // Fetch all study groups
+    const fetchAllGroups = async () => {
+      try {
+        const response = await api.get("/study-group");
+        setAllGroups(response.data.study_groups || []);
+      } catch (error) {
+        console.error("❌ Error fetching all groups:", error.response?.data || error.message);
+      }
     };
 
-    const leaveGroup = async (groupId) => {
-        const token = localStorage.getItem('token');
-        if (!token) {
-            setError('You need to log in to leave a group.');
-            return;
-        }
-
-        try {
-            const response = await axios.post(
-                `${BASE_URL}/study-group/leave`,
-                { groupId },
-                { headers: { Authorization: `Bearer ${token}` } }
-            );
-
-            setGroups(prevGroups =>
-                prevGroups.map(group =>
-                    group.id === groupId ? { ...group, members: response.data.members } : group
-                )
-            );
-
-            setMessage('You have successfully left the group.');
-            setError('');
-        } catch (err) {
-            handleError(err);
-        }
+    // Fetch groups joined by logged-in user
+    const fetchMyGroups = async () => {
+      try {
+        const response = await api.get("/my-groups", {
+          headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+        });
+        setMyGroups(response.data.joined_groups || []);
+      } catch (error) {
+        console.error("❌ Error fetching my groups:", error.response?.data || error.message);
+      }
     };
 
-    const toggleMembers = (groupId) => {
-        setGroups(prevGroups =>
-            prevGroups.map(group =>
-                group.id === groupId ? { ...group, showMembers: !group.showMembers } : group
-            )
-        );
-    };
+    fetchAllGroups();
+    fetchMyGroups();
+  }, []);
 
-    const handleError = (err) => {
-        if (err.response) {
-            console.error('Error:', err.response.data);
-            setError(err.response.data.message || 'An error occurred.');
-        } else {
-            console.error('Error:', err.message);
-            setError('An error occurred.');
-        }
-        setMessage('');
-    };
+  return (
+    <div>
+      <h2>📚 All Study Groups</h2>
+      {allGroups.length > 0 ? (
+        <ul>
+          {allGroups.map((group) => (
+            <li key={group.id}>
+              <strong>{group.name}</strong> ({group.members.length} members)
+            </li>
+          ))}
+        </ul>
+      ) : (
+        <p>No study groups found.</p>
+      )}
 
-    if (loading) {
-        return <p>Loading...</p>;
-    }
-
-    // Separate groups into My Groups and Other Groups
-    const myGroups = groups.filter(group => group.members.some(member => member.id === parseInt(localStorage.getItem('userId'))));
-    const otherGroups = groups.filter(group => !group.members.some(member => member.id === parseInt(localStorage.getItem('userId'))));
-
-    return (
-        <div className="study-groups-container">
-            <h2>Study Groups</h2>
-            {error && <p className="error">{error}</p>}
-            {message && <p className="success">{message}</p>}
-
-            <div className="groups-section">
-                <div className="group-list">
-                    <h3>My Groups</h3>
-                    {myGroups.length > 0 ? (
-                        <ul>
-                            {myGroups.map(group => (
-                                <li key={group.id}>
-                                    <h4>{group.name}</h4>
-                                    <button onClick={() => leaveGroup(group.id)}>Leave Group</button>
-                                    <button onClick={() => toggleMembers(group.id)}>
-                                        {group.showMembers ? 'Hide Members' : 'Show Members'}
-                                    </button>
-                                    {group.showMembers && group.members.length > 0 && (
-                                        <ul>
-                                            {group.members.map(member => (
-                                                <li key={member.id}>{member.username}</li>
-                                            ))}
-                                        </ul>
-                                    )}
-                                </li>
-                            ))}
-                        </ul>
-                    ) : (
-                        <p>You are not a member of any group.</p>
-                    )}
-                </div>
-
-                <div className="group-list">
-                    <h3>Other Groups</h3>
-                    {otherGroups.length > 0 ? (
-                        <ul>
-                            {otherGroups.map(group => (
-                                <li key={group.id}>
-                                    <h4>{group.name}</h4>
-                                    <button onClick={() => joinGroup(group.id)}>Join Group</button>
-                                    <button onClick={() => toggleMembers(group.id)}>
-                                        {group.showMembers ? 'Hide Members' : 'Show Members'}
-                                    </button>
-                                    {group.showMembers && group.members.length > 0 && (
-                                        <ul>
-                                            {group.members.map(member => (
-                                                <li key={member.id}>{member.username}</li>
-                                            ))}
-                                        </ul>
-                                    )}
-                                </li>
-                            ))}
-                        </ul>
-                    ) : (
-                        <p>No other groups available.</p>
-                    )}
-                </div>
-            </div>
-        </div>
-    );
+      <h2>✅ My Joined Groups</h2>
+      {myGroups.length > 0 ? (
+        <ul>
+          {myGroups.map((group) => (
+            <li key={group.id}>
+              <strong>{group.name}</strong> ({group.members.length} members)
+            </li>
+          ))}
+        </ul>
+      ) : (
+        <p>You haven’t joined any groups yet.</p>
+      )}
+    </div>
+  );
 };
 
 export default StudyGroup;
