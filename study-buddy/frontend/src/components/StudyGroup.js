@@ -10,6 +10,8 @@ const StudyGroup = () => {
     const [message, setMessage] = useState('');
     const [loading, setLoading] = useState(true);
 
+    const userId = parseInt(localStorage.getItem('userId')); // cache userId once
+
     useEffect(() => {
         const fetchGroups = async () => {
             setLoading(true);
@@ -25,7 +27,7 @@ const StudyGroup = () => {
                     headers: { Authorization: `Bearer ${token}` }
                 });
 
-                const groupsWithMembers = response.data.study_groups.map(group => ({
+                const groupsWithMembers = (response.data.study_groups || []).map(group => ({
                     ...group,
                     members: group.members || [],
                     showMembers: false,
@@ -59,7 +61,7 @@ const StudyGroup = () => {
 
             setGroups(prevGroups =>
                 prevGroups.map(group =>
-                    group.id === groupId ? { ...group, members: response.data.members } : group
+                    group.id === groupId ? { ...group, members: response.data.members || [] } : group
                 )
             );
 
@@ -86,7 +88,7 @@ const StudyGroup = () => {
 
             setGroups(prevGroups =>
                 prevGroups.map(group =>
-                    group.id === groupId ? { ...group, members: response.data.members } : group
+                    group.id === groupId ? { ...group, members: response.data.members || [] } : group
                 )
             );
 
@@ -120,9 +122,13 @@ const StudyGroup = () => {
         return <p>Loading...</p>;
     }
 
-    // Separate groups into My Groups and Other Groups
-    const myGroups = groups.filter(group => group.members.some(member => member.id === parseInt(localStorage.getItem('userId'))));
-    const otherGroups = groups.filter(group => !group.members.some(member => member.id === parseInt(localStorage.getItem('userId'))));
+    // Separate groups into My Groups and Other Groups safely
+    const myGroups = groups.filter(group =>
+        group.members.some(member => member.id === userId)
+    );
+    const otherGroups = groups.filter(group =>
+        !group.members.some(member => member.id === userId)
+    );
 
     return (
         <div className="study-groups-container">
