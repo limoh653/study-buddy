@@ -49,7 +49,7 @@ const StudyGroup = () => {
 
         try {
             const response = await axios.post(
-                'https://study-buddy-24.onrender.com/join',
+                'https://study-buddy-24.onrender.coms/study-group/join',
                 { groupId },
                 { headers: { Authorization: `Bearer ${token}` } }
             );
@@ -76,7 +76,7 @@ const StudyGroup = () => {
 
         try {
             const response = await axios.post(
-                'https://study-buddy-24.onrender.com/leave',
+                'https://study-buddy-24.onrender.com/study-group/leave',
                 { groupId },
                 { headers: { Authorization: `Bearer ${token}` } }
             );
