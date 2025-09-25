@@ -33,7 +33,6 @@ const StudyGroup = () => {
   const handleJoin = async (groupId) => {
     try {
       await joinGroup(token, groupId);
-      // Refresh joined groups after joining
       const res = await getJoinedGroups(token);
       setJoinedGroups(res.data.joined_groups || []);
     } catch (error) {
@@ -45,7 +44,6 @@ const StudyGroup = () => {
   const handleLeave = async (groupId) => {
     try {
       await leaveGroup(token, groupId);
-      // Refresh joined groups after leaving
       const res = await getJoinedGroups(token);
       setJoinedGroups(res.data.joined_groups || []);
     } catch (error) {
@@ -57,6 +55,7 @@ const StudyGroup = () => {
 
   return (
     <div className="study-groups">
+      {/* My Groups */}
       <h2>My Groups</h2>
       {joinedGroups.length === 0 ? (
         <p>You are not a member of any group</p>
@@ -65,12 +64,13 @@ const StudyGroup = () => {
           {joinedGroups.map((group) => (
             <li key={group.id}>
               <strong>{group.name}</strong> ({group.members.length} members)
-              <button onClick={() => handleLeave(group.id)}>Leave</button>
+              <button onClick={() => handleLeave(group.id)}>🚪 Leave</button>
             </li>
           ))}
         </ul>
       )}
 
+      {/* All Groups */}
       <h2>All Groups</h2>
       {allGroups.length === 0 ? (
         <p>No study groups available</p>
@@ -80,9 +80,9 @@ const StudyGroup = () => {
             <li key={group.id}>
               <strong>{group.name}</strong> ({group.members.length} members)
               {joinedGroups.some((jg) => jg.id === group.id) ? (
-                <button disabled>Joined</button>
+                <button disabled>✅ Joined</button>
               ) : (
-                <button onClick={() => handleJoin(group.id)}>Join</button>
+                <button onClick={() => handleJoin(group.id)}>➕ Join</button>
               )}
             </li>
           ))}

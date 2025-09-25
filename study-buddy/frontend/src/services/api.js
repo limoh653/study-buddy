@@ -54,6 +54,13 @@ export const joinGroup = async (groupId) => {
 };
 
 // fetch groups the logged-in user has joined
-export const fetchJoinedGroups = async () => {
-  return await apiClient.get("/profile/groups");
+
+// --- STUDY GROUP ROUTES ---
+export const getJoinedGroups = async (token) => {
+  return await axios.get(`${API_URL}/profile/groups`, {
+    headers: { 
+      Authorization: `Bearer ${token}`, 
+      'Content-Type': 'application/json'
+    }
+  });
 };
